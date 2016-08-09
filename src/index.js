@@ -1,3 +1,11 @@
-export const test = () => {
-  return new Promise(resolve => resolve(true));
-};
+export default class WaveCrest {
+  constructor(options = {}) {
+    this.options = options;
+
+    return this;
+  }
+
+  createCard() {
+    //
+  }
+}
