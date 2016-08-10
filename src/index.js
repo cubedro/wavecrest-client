@@ -1,11 +1,7 @@
-export default class WaveCrest {
-  constructor(options = {}) {
-    this.options = options;
+import Base from './Base';
 
-    return this;
-  }
-
-  createCard() {
-    //
+export default class WavecrestClient extends Base {
+  createCard(body) {
+    return this.post('cards', [], body);
   }
 }

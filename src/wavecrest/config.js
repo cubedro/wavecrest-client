@@ -1,8 +1,8 @@
-export const DEVELOPMENT_ENDPOINT = 'https://wcapi.wavecrest.in/apisandbox';
-export const PRODUCTION_ENDPOINT = 'https://wcapi.wavecrest.in/v3/services';
+export const API_VERSION = '1.0.0';
 
-export const SERVICE_AUTH = 'authenticator';
-export const SERVICE_API = 'businesspartners';
+export const API_PATH = 'https://wcapi.wavecrest.in/v3/services';
+export const API_SANDBOX_PATH = 'https://wcapi.wavecrest.in/apisandbox';
+export const API_AUTH_PATH = 'authenticator';
 
 export const COUNTRY_CODES = [
   'AX', 'AL', 'AD', 'AI', 'AG', 'AR', 'AM', 'AW', 'AU', 'AT', 'AZ', 'BS', 'BH',

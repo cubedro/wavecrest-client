@@ -1,12 +1,26 @@
+import request from 'superagent';
+import { API_PATH, API_SANDBOX_PATH, API_AUTH_PATH, API_VERSION } from './wavecrest/config';
+
 let instance = null;
 
 export default class Base {
-  constructor(opts) {
+
+  /**
+   *  Class constructor
+   *
+   *  @method          constructor
+   *  @param           {Object}             options          {devId, devPassword, apiPath, authPath}
+   *  @return          {Object}             Base class instance
+   */
+  constructor(options) {
     if (!instance) {
       instance = this;
     }
 
-    this.opts = opts || {};
+    Object.assign(this, {
+      apiPath: API_PATH,
+      authPath: API_AUTH_PATH,
+    }, options);
 
     return instance;
   }
@@ -30,24 +44,86 @@ export default class Base {
    *  @return          {String}
    */
   makeAbsoluteURI(relativeURI) {
-    return this.apiURI + relativeURI;
+    return this.apiPath + relativeURI;
   }
 
   /**
-   *  [makeHeaders description]
+   *  Returns object with headers for request
    *
    *  @method          makeHeaders
-   *  @param           {[type]}             additional          [description]
-   *  @return          {[type]}             [description]
+   *  @param           {Object}             additional          Pass additional headers
+   *  @return          {Object}             Headers object
    */
   makeHeaders(additional) {
     return Object.assign({
       'User-Agent': 'wavecrest-node-client',
       Accept: 'application/json',
       'Content-Type': 'application/json',
-      DeveloperId: this.opts.developerId,
-      AuthenticationToken: this.opts.authToken,
-      'X-Method-Override': 'login',
+      DeveloperId: this.developerId,
+      AuthenticationToken: this.authToken,
+      // 'X-Method-Override': 'login',
     }, additional);
+  }
+
+  /**
+   *  Makes a GET request
+   *
+   *  @method          get
+   *  @param           {String}          path            API method relative path
+   *  @param           {Array}           params          Parameters passed in path
+   *  @return          {Object}          Request object
+   */
+  get(path, params, headers = {}) {
+    const url = this.makeAbsoluteURI(this.makeRelativeURI([ path, ...params ]));
+
+    return request.get(url)
+      .set(this.makeHeaders(headers));
+  }
+
+  /**
+   *  Makes a POST request
+   *
+   *  @method          post
+   *  @param           {String}          path            API method relative path
+   *  @param           {Array}           params          Parameters passed in path
+   *  @param           {Object}          payload         Payload to be passed in request
+   *  @return          {Object}          Request object
+   */
+  post(path, params, body, headers = {}) {
+    const url = this.makeAbsoluteURI(this.makeRelativeURI([ path, ...params ]));
+
+    return request.post(url)
+      .set(this.makeHeaders(headers))
+      .send(body);
+  }
+
+  /**
+   *  Returns the API production URL
+   *
+   *  @method          apiBaseUrl
+   *  @return          {String}
+   */
+  apiBaseUrl() {
+    return API_PATH;
+  }
+
+  /**
+   *  Returns the API sandbox URL
+   *
+   *  @method          apiSandboxUrl
+   *  @return          {String}
+   */
+  apiSandboxUrl() {
+    return API_SANDBOX_PATH;
+  }
+
+  /**
+   *  Returns the API version
+   *
+   *  @method          apiVersion
+   *  @return          {String}
+   */
+  apiVersion() {
+    return API_VERSION;
   }
 }
