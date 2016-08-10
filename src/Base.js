@@ -28,33 +28,33 @@ export default class Base {
   /**
    *  Concatenate array into a single string relative path
    *
-   *  @method          makeRelativeURI
+   *  @method          _makeRelativeURI
    *  @param           {Array}                  parts
    *  @return          {String}
    */
-  makeRelativeURI(parts = []) {
+  _makeRelativeURI(parts = []) {
     return '/' + parts.join();
   }
 
   /**
    *  Prefix relative URI with api host
    *
-   *  @method          makeAbsoluteURI
+   *  @method          _makeAbsoluteURI
    *  @param           {String}                 relativeURI
    *  @return          {String}
    */
-  makeAbsoluteURI(relativeURI) {
+  _makeAbsoluteURI(relativeURI) {
     return this.apiPath + relativeURI;
   }
 
   /**
    *  Returns object with headers for request
    *
-   *  @method          makeHeaders
+   *  @method          _makeHeaders
    *  @param           {Object}             additional          Pass additional headers
    *  @return          {Object}             Headers object
    */
-  makeHeaders(additional) {
+  _makeHeaders(additional) {
     return Object.assign({
       'User-Agent': 'wavecrest-node-client',
       Accept: 'application/json',
@@ -68,12 +68,12 @@ export default class Base {
   /**
    *  Makes a GET request
    *
-   *  @method          get
+   *  @method          _get
    *  @param           {String}          path            API method relative path
    *  @param           {Array}           params          Parameters passed in path
    *  @return          {Object}          Request object
    */
-  get(path, params, headers = {}) {
+  _get(path, params, headers = {}) {
     const url = this.makeAbsoluteURI(this.makeRelativeURI([ path, ...params ]));
 
     return request.get(url)
@@ -83,13 +83,13 @@ export default class Base {
   /**
    *  Makes a POST request
    *
-   *  @method          post
+   *  @method          _post
    *  @param           {String}          path            API method relative path
    *  @param           {Array}           params          Parameters passed in path
    *  @param           {Object}          payload         Payload to be passed in request
    *  @return          {Object}          Request object
    */
-  post(path, params, body, headers = {}) {
+  _post(path, params, body, headers = {}) {
     const url = this.makeAbsoluteURI(this.makeRelativeURI([ path, ...params ]));
 
     return request.post(url)
@@ -103,7 +103,7 @@ export default class Base {
    *  @method          apiBaseUrl
    *  @return          {String}
    */
-  apiBaseUrl() {
+  static apiBaseUrl() {
     return API_PATH;
   }
 
@@ -113,7 +113,7 @@ export default class Base {
    *  @method          apiSandboxUrl
    *  @return          {String}
    */
-  apiSandboxUrl() {
+  static apiSandboxUrl() {
     return API_SANDBOX_PATH;
   }
 
@@ -123,7 +123,7 @@ export default class Base {
    *  @method          apiVersion
    *  @return          {String}
    */
-  apiVersion() {
+  static apiVersion() {
     return API_VERSION;
   }
 }
