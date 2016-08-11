@@ -1,26 +1,35 @@
 import request from 'superagent';
 import { API_PATH, API_SANDBOX_PATH, API_AUTH_PATH, API_VERSION } from './wavecrest/config';
 
+const API_TOKEN_LIFETIME = 1000 * 60 * 60 * 8;
 let instance = null;
 
-export default class Base {
+export default class BaseClient {
 
   /**
    *  Class constructor
    *
    *  @method          constructor
-   *  @param           {Object}             options          {devId, devPassword, apiPath, authPath}
+   *  @param           {String}             apiKey           developerID
+   *  @param           {String}             apiSecret        developerPassword
+   *  @param           {Object}             options          { apiPath, authPath }
    *  @return          {Object}             Base class instance
    */
-  constructor(options) {
-    if (!instance) {
-      instance = this;
+  constructor(apiKey, apiSecret, options) {
+    if (!this.apiKey || !this.apiSecret) {
+      throw new Error('You have to provide the developerID and developerPassword');
     }
 
     Object.assign(this, {
+      apiKey,
+      apiSecret,
       apiPath: API_PATH,
       authPath: API_AUTH_PATH,
     }, options);
+
+    if (!instance) {
+      instance = this;
+    }
 
     return instance;
   }
@@ -28,53 +37,60 @@ export default class Base {
   /**
    *  Concatenate array into a single string relative path
    *
-   *  @method          _makeRelativeURI
+   *  @method          makeRelativeURI
    *  @param           {Array}                  parts
    *  @return          {String}
    */
-  _makeRelativeURI(parts = []) {
+  makeRelativeURI(parts = []) {
     return '/' + parts.join();
   }
 
   /**
    *  Prefix relative URI with api host
    *
-   *  @method          _makeAbsoluteURI
+   *  @method          makeAbsoluteURI
    *  @param           {String}                 relativeURI
    *  @return          {String}
    */
-  _makeAbsoluteURI(relativeURI) {
+  makeAbsoluteURI(relativeURI) {
     return this.apiPath + relativeURI;
   }
 
   /**
    *  Returns object with headers for request
    *
-   *  @method          _makeHeaders
+   *  @method          makeHeaders
    *  @param           {Object}             additional          Pass additional headers
    *  @return          {Object}             Headers object
    */
-  _makeHeaders(additional) {
+  makeHeaders(additional, auth = false) {
+    let authHeaders = {
+      DeveloperPassword: this.apiSecret,
+      'X-Method-Override': 'login',
+    };
+
+    let apiHeaders = {
+      AuthenticationToken: this.authToken,
+    };
+
     return Object.assign({
       'User-Agent': 'wavecrest-node-client',
-      Accept: 'application/json',
       'Content-Type': 'application/json',
+      Accept: 'application/json',
       DeveloperId: this.developerId,
-      AuthenticationToken: this.authToken,
-      // 'X-Method-Override': 'login',
-    }, additional);
+    }, (auth ? authHeaders : apiHeaders), additional);
   }
 
   /**
    *  Makes a GET request
    *
-   *  @method          _get
+   *  @method          get
    *  @param           {String}          path            API method relative path
    *  @param           {Array}           params          Parameters passed in path
    *  @return          {Object}          Request object
    */
-  _get(path, params, headers = {}) {
-    const url = this.makeAbsoluteURI(this.makeRelativeURI([ path, ...params ]));
+  get(path, params, headers = {}) {
+    const url = this.makeAbsoluteURI(this.makeRelativeURI([ ...params, path ]));
 
     return request.get(url)
       .set(this.makeHeaders(headers));
@@ -83,18 +99,45 @@ export default class Base {
   /**
    *  Makes a POST request
    *
-   *  @method          _post
+   *  @method          post
    *  @param           {String}          path            API method relative path
    *  @param           {Array}           params          Parameters passed in path
    *  @param           {Object}          payload         Payload to be passed in request
    *  @return          {Object}          Request object
    */
-  _post(path, params, body, headers = {}) {
-    const url = this.makeAbsoluteURI(this.makeRelativeURI([ path, ...params ]));
+  post(path, params, body, headers = {}) {
+    const url = this.makeAbsoluteURI(this.makeRelativeURI([ ...params, path ]));
 
     return request.post(url)
       .set(this.makeHeaders(headers))
       .send(body);
+  }
+
+  /**
+   *  Check if authToken exists and is still valid
+   *
+   *  @method          isAuthTokenValid
+   *  @return          {Boolean}
+   */
+  isAuthTokenValid() {
+    let authTokenExpiration = this.authTokenIssuedAt + API_TOKEN_LIFETIME;
+    return (this.authToken && authTokenExpiration > (new Date()).getTime());
+  }
+
+  /**
+   *  Get the auth token
+   *
+   *  @method          getAuthToken
+   *  @return          {Promise}
+   */
+  getAuthToken() {
+    const url = this.makeAbsoluteURI('/' + this.authPath);
+
+    return request.post(url)
+      .set(this.makeHeaders({}, true))
+      .then(response => {
+        console.log(response);
+      });
   }
 
   /**
