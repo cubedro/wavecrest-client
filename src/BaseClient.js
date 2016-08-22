@@ -137,6 +137,13 @@ export default class BaseClient {
       .set(this.makeHeaders({}, true))
       .then(response => {
         console.log(response);
+
+        if (!response.token) {
+          throw (new Error('Auth failed. No token received.'));
+        }
+
+        this.authToken = response.token;
+        this.authTokenIssuedAt = (new Date()).getTime();
       });
   }
 
