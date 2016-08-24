@@ -8,7 +8,7 @@
   },
   "license": "MIT",
   "options": {
-    "mocha": "--require scripts/mocha_runner src/**/__tests__/**/*.js"
+    "mocha": "--timeout 15000 --require scripts/mocha_runner src/**/__tests__/**/*.js"
   },
   "main": "./index.js",
   "scripts": {
@@ -43,6 +43,8 @@
     "babel-preset-es2015": "^6.13.2",
     "babel-preset-stage-0": "^6.5.0",
     "chai": "^3.5.0",
+    "dirty-chai": "^1.2.2",
+    "dotenv": "^2.0.0",
     "eslint": "^3.2.2",
     "eslint-plugin-babel": "^3.3.0",
     "mocha": "^3.0.2",

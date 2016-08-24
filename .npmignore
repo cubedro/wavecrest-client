@@ -6,5 +6,6 @@
 .idea
 .babelrc
 .eslintrc
+.env
 npm-debug.log
 src

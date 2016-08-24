@@ -21,6 +21,8 @@ export default class BaseClient {
     }
 
     if (!instance) {
+      this.authToken = '';
+      this.authTokenIssuedAt = 0;
       instance = this;
     }
 
@@ -121,7 +123,7 @@ export default class BaseClient {
    */
   isAuthTokenValid() {
     let authTokenExpiration = this.authTokenIssuedAt + API_TOKEN_LIFETIME;
-    return (this.authToken && authTokenExpiration > (new Date()).getTime());
+    return Boolean(this.authToken.length && authTokenExpiration > (new Date()).getTime());
   }
 
   /**
@@ -136,14 +138,14 @@ export default class BaseClient {
     return request.post(url)
       .set(this.makeHeaders({}, true))
       .then(response => {
-        console.log(response);
-
-        if (!response.token) {
+        if (response.status !== 200) {
           throw (new Error('Auth failed. No token received.'));
         }
 
-        this.authToken = response.token;
+        this.authToken = response.body.token;
         this.authTokenIssuedAt = (new Date()).getTime();
+
+        return response.body;
       });
   }
 
