@@ -10,26 +10,26 @@ export default class BaseClient {
    *  Class constructor
    *
    *  @method          constructor
-   *  @param           {String}             apiKey           developerID
-   *  @param           {String}             apiSecret        developerPassword
-   *  @param           {Object}             options          { apiPath, authPath }
-   *  @return          {Object}             Base class instance
+   *  @param           {String}             developerId              developerID
+   *  @param           {String}             developerPassword        developerPassword
+   *  @param           {Object}             options                  { apiPath, authPath }
+   *  @return          {Object}             BaseClient class instance
    */
-  constructor(apiKey, apiSecret, options) {
-    if (!this.apiKey || !this.apiSecret) {
+  constructor(developerId, developerPassword, options) {
+    if (!developerId || !developerPassword) {
       throw new Error('You have to provide the developerID and developerPassword');
     }
-
-    Object.assign(this, {
-      apiKey,
-      apiSecret,
-      apiPath: API_PATH,
-      authPath: API_AUTH_PATH,
-    }, options);
 
     if (!instance) {
       instance = this;
     }
+
+    Object.assign(instance, {
+      developerId,
+      developerPassword,
+      apiPath: API_PATH,
+      authPath: API_AUTH_PATH,
+    }, options);
 
     return instance;
   }
@@ -42,7 +42,7 @@ export default class BaseClient {
    *  @return          {String}
    */
   makeRelativeURI(parts = []) {
-    return '/' + parts.join();
+    return '/' + parts.join('/');
   }
 
   /**
@@ -65,13 +65,13 @@ export default class BaseClient {
    */
   makeHeaders(additional, auth = false) {
     let authHeaders = {
-      DeveloperPassword: this.apiSecret,
+      DeveloperPassword: this.developerPassword,
       'X-Method-Override': 'login',
     };
 
-    let apiHeaders = {
+    let apiHeaders = (this.authToken ? {
       AuthenticationToken: this.authToken,
-    };
+    } : {});
 
     return Object.assign({
       'User-Agent': 'wavecrest-node-client',

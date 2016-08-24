@@ -3,8 +3,18 @@ import BaseClient from './BaseClient';
 let instance = null;
 
 export default class WavecrestClient extends BaseClient {
-  constructor(apiKey, apiSecret, options) {
-    super(apiKey, apiSecret, options);
+
+  /**
+   *  Class constructor
+   *
+   *  @method          constructor
+   *  @param           {String}             developerId              developerID
+   *  @param           {String}             developerPassword        developerPassword
+   *  @param           {Object}             options                  { apiPath, authPath }
+   *  @return          {Object}             WavecrestClient class instance
+   */
+  constructor(developerId, developerPassword, options) {
+    super(developerId, developerPassword, options);
 
     if (!instance) {
       instance = this;
