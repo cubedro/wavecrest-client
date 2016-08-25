@@ -1,7 +1,7 @@
 import chai, { expect } from 'chai';
 import dirtyChai from 'dirty-chai';
 import WavecrestClient from '../';
-import { API_PATH, API_SANDBOX_PATH, API_VERSION } from '../wavecrest/config';
+import { API_PATH, API_SANDBOX_PATH, API_VERSION } from '../config';
 import { DEVELOPER_ID, DEVELOPER_PASSWORD, HEADERS_LOGIN, HEADERS_DEFAULT } from './fixtures';
 
 chai.use(dirtyChai);
@@ -14,7 +14,7 @@ describe('WavecrestClient class extend', () => {
     expect(result).to.be.an.instanceof(WavecrestClient);
   });
 
-  it('should throw error if devId not provided', async () => {
+  it('should throw error if developerId not provided', async () => {
     expect(function () {
       const result = new WavecrestClient('', DEVELOPER_PASSWORD, {});
       return result;
@@ -22,7 +22,7 @@ describe('WavecrestClient class extend', () => {
       .to.throw(Error, 'You have to provide the developerID and developerPassword');
   });
 
-  it('should throw error if devPass not provided', async () => {
+  it('should throw error if developerPassword not provided', async () => {
     expect(function () {
       const result = new WavecrestClient(DEVELOPER_ID, '', {});
       return result;
@@ -32,7 +32,7 @@ describe('WavecrestClient class extend', () => {
 
   it('should make relative path', async () => {
     const client = new WavecrestClient(DEVELOPER_ID, DEVELOPER_PASSWORD, {});
-    const result = client.makeRelativeURI([ 'test', 'path' ]);
+    const result = client.makeRelativeURI(['test', 'path']);
     expect(result).to.be.equal('/test/path');
   });
 
@@ -56,7 +56,7 @@ describe('WavecrestClient class extend', () => {
 
   describe('WavecrestClient.get()', () => {
     const client = new WavecrestClient(DEVELOPER_ID, DEVELOPER_PASSWORD);
-    const result = client.get('test', [ 'get', 'method' ]);
+    const result = client.get('test', ['get', 'method']);
     const expectedURL = API_PATH + '/get/method/test';
 
     it('should have request method GET', async () => {
@@ -70,12 +70,17 @@ describe('WavecrestClient class extend', () => {
     it('should have default headers', async () => {
       expect(result.header).to.deep.equal(HEADERS_DEFAULT);
     });
+
+    it('should have add to default headers', async () => {
+      const resultHeaders = client.get('test', ['get', 'method'], {'X-Test-Header': 'Test'});
+      expect(resultHeaders.header).to.have.property('X-Test-Header', 'Test');
+    });
   });
 
   describe('WavecrestClient.post()', () => {
     const client = new WavecrestClient(DEVELOPER_ID, DEVELOPER_PASSWORD);
     const payload = {test: 10};
-    const result = client.post('test', [ 'post', 'method' ], payload);
+    const result = client.post('test', ['post', 'method'], payload);
     const expectedURL = API_PATH + '/post/method/test';
 
     it('should have request method POST', async () => {
@@ -105,6 +110,7 @@ describe('WavecrestClient class extend', () => {
 
     it('should get authToken', async () => {
       const result = await client.getAuthToken();
+      // console.log(result);
       const token = result.token;
 
       if (DEVELOPER_ID !== 'devId') {

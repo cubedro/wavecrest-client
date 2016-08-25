@@ -39,9 +39,9 @@
   },
 
   "rules": {
-    "babel/arrow-parens": [2, "as-needed"],
-
-    "array-bracket-spacing": [2, "always"],
+    "arrow-parens": 0,
+    "babel/arrow-parens": 0,
+    "array-bracket-spacing": 2,
     "arrow-spacing": 2,
     "block-scoped-var": 0,
     "brace-style": [2, "1tbs", {"allowSingleLine": true}],
